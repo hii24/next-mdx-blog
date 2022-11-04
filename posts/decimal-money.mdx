@@ -1,0 +1,41 @@
+---
+title: "Why Decimal.js for money in JavaScript"
+date: "2022-11-04"
+tags: ["javascript", "fintech"]
+excerpt: "JavaScript's `Number` is a 64-bit float. That's fine for sensors but absolutely catastrophic for money."
+---
+
+JavaScript's `Number` is a 64-bit float. That's fine for sensors but
+absolutely catastrophic for money. Here's why:
+
+```js
+0.1 + 0.2 // → 0.30000000000000004
+```
+
+Multiply that error across hundreds of transactions and your reconciliation
+report is off by cents — sometimes dollars. Auditors do not enjoy that.
+
+## The fix: `decimal.js`
+
+```js
+import Decimal from "decimal.js";
+
+const total = new Decimal("0.1").plus("0.2");
+total.toString(); // → "0.3"
+```
+
+`Decimal.js` does arbitrary-precision arithmetic. Slightly slower than
+native floats, but math you can trust.
+
+## When to reach for it
+
+- Anywhere money is added, subtracted, or multiplied
+- Crypto holdings (precision matters even more — 18 decimals on Ethereum)
+- Tax calculations
+- Anything where rounding errors compound
+
+## When you don't need it
+
+- Display only (just use `Intl.NumberFormat`)
+- Quantities of physical objects (use integers)
+- Performance-critical loops that don't touch currency
